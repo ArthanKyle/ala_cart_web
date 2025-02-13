@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProfilePictureController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,10 +23,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // User API //
 Route::apiResource('users', UserController::class);
-Route::middleware('auth:sanctum')->get('/user/profile', [UserController::class, 'show']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/profile', [UserController::class, 'show']);
+    Route::put('/update/{id}', [UserController::class, 'update']);
+    Route::post('/upload-profile-picture', [ProfilePictureController::class, 'upload']);
+});
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
 
 // Product API //
 Route::get('products', [ProductController::class, 'index']);

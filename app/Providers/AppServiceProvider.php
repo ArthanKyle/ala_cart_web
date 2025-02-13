@@ -7,6 +7,8 @@ use Illuminate\Support\ServiceProvider;
 use Lunar\Admin\Support\Facades\LunarPanel;
 use Lunar\Base\ShippingModifiers;
 use Lunar\Shipping\ShippingPlugin;
+use App\Services\ProfilePictureService;
+use App\Services\ProfilePictureServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
             ])
         )
             ->register();
+
+            $this->app->bind(ProfilePictureServiceInterface::class, ProfilePictureService::class);
     }
 
     /**

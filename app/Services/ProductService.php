@@ -8,7 +8,7 @@ class ProductService
 {
     public function getAllProducts()
     {
-        return Product::all();
+        return Product::with('images')->paginate();
     }
 
     public function createProduct(array $data)
