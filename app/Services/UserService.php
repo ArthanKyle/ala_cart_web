@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Support\Arr;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 
 class UserService
 {
@@ -24,7 +28,10 @@ class UserService
     public function updateUser($id, array $data)
     {
         $user = User::findOrFail($id);
-        $user->update($data);
+
+        // Update user information (excluding profile_picture from mass update)
+        $user->update(Arr::except($data, ['profile_picture']));
+    
         return $user;
     }
 

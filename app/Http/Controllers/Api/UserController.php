@@ -9,6 +9,9 @@ use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Auth;
+use App\Models\User;
+use Storage;
+use App\Http\Requests\UpdateProfilePictureRequest;
 
 class UserController extends Controller
 {
@@ -46,12 +49,31 @@ class UserController extends Controller
     /**
      * Update the specified user.
      */
-    public function update(UserUpdateRequest $request, string $id): JsonResponse
-    {
-        $user = $this->userService->updateUser($id, $request->validated());
-        return response()->json($user);
-    }
 
+     public function update(UserUpdateRequest $request, string $id): JsonResponse
+    {
+        try {
+            $user = User::findOrFail($id);
+
+            // Only update fields that are provided
+            $user->update($request->only([
+                'first_name', 'middle_name', 'last_name',
+                'email', 'phone_number', 'address'
+            ]));
+
+            return response()->json([
+                'message' => 'Profile updated successfully',
+                'user' => $user
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to update user',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
     /**
      * Remove the specified user.
      */
