@@ -1,6 +1,7 @@
     <?php
 
-    use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfilePictureController;
@@ -53,3 +54,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/update/{cartLineId}', [CartController::class, 'updateItem']);
     Route::delete('/cart/delete/{cartLineId}', [CartController::class, 'deleteItem']);
 });
+
+// Review Api //
+Route::get('/reviews', [ReviewController::class, 'index']); // Get all reviews
+Route::get('/reviews/{id}', [ReviewController::class, 'show']); // Get a single review
+Route::post('/reviews', [ReviewController::class, 'store']); // Create a review
+Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']); // Delete a review

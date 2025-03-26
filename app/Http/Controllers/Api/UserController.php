@@ -50,25 +50,34 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
-
-            // Only update fields that are provided
+    
+            // Update user fields
             $user->update($request->only([
                 'first_name', 'middle_name', 'last_name',
                 'email', 'phone_number', 'address',
             ]));
-
+    
+            // Update only first name and last name in the Customer table
+            if ($user->customer) {
+                $user->customer->update([
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                ]);
+            }
+    
             return response()->json([
                 'message' => 'Profile updated successfully',
                 'user' => $user,
+                'customer' => $user->customer, // Return updated customer data
             ], 200);
-
+    
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Failed to update user',
                 'message' => $e->getMessage(),
             ], 500);
         }
-    }
+    }    
 
     /**
      * Remove the specified user.

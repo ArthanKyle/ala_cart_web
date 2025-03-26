@@ -4,18 +4,18 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class ProfilePictureService implements ProfilePictureServiceInterface
 {
     public function uploadProfilePicture(User $user, UploadedFile $file): string
     {
-        // Define the storage path
-        $path = $file->store("profile_pictures/{$user->id}", 'public');
+        // Remove old profile picture
+        $user->clearMediaCollection('profile_pictures');
 
-        // Update user profile picture path
-        $user->update(['profile_picture' => $path]);
+        // Add new profile picture
+        $user->addMedia($file)->toMediaCollection('profile_pictures');
 
-        return $path;
+        return $user->getFirstMediaUrl('profile_pictures');
     }
 }
+

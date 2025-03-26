@@ -6,14 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Lunar\Base\Traits\LunarUser;
 use Lunar\Models\Customer;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class User extends Authenticatable
+
+class User extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, LunarUser, Notifiable;
+    use HasApiTokens, HasFactory, LunarUser, Notifiable, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -56,16 +58,8 @@ class User extends Authenticatable
 
     public function getProfilePictureUrlAttribute()
     {
-        if (! $this->profile_picture) {
-            return asset('storage/profile_pictures/default_profile.jpg'); // Default image
-        }
+        $media = $this->getFirstMedia('profile_pictures');
 
-        // Check if profile_picture is already a full URL (in case of external storage)
-        if (filter_var($this->profile_picture, FILTER_VALIDATE_URL)) {
-            return $this->profile_picture;
-        }
-
-        // Generate a full URL for local storage
-        return asset('storage/'.$this->profile_picture);
+        return $media ? $media->getUrl() : asset('storage/profile_pictures/default_profile.jpg');
     }
 }

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfilePictureController extends Controller
 {
-    protected ProfilePictureServiceInterface $profilePictureService;
+    private ProfilePictureServiceInterface $profilePictureService;
 
     public function __construct(ProfilePictureServiceInterface $profilePictureService)
     {
@@ -24,18 +24,16 @@ class ProfilePictureController extends Controller
         ]);
 
         $user = Auth::user();
-
-        // ✅ Ensure user is authenticated before proceeding
         if (! $user instanceof User) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $file = $request->file('profile_picture');
-        $path = $this->profilePictureService->uploadProfilePicture($user, $file);
+        $profilePictureUrl = $this->profilePictureService->uploadProfilePicture($user, $file);
 
         return response()->json([
             'message' => 'Profile picture uploaded successfully',
-            'profile_picture_url' => asset('storage/'.$path),
+            'profile_picture_url' => $profilePictureUrl,
         ]);
     }
 }

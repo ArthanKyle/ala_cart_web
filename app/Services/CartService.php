@@ -8,41 +8,51 @@ use Lunar\Models\Channel;
 use Lunar\Models\Currency;
 use Lunar\Models\Customer;
 use Lunar\Models\ProductVariant;
+use App\Models\Product;
 
 class CartService
 {
     public function getUserCart($userId)
-    {
-        $cart = Cart::where('user_id', $userId)
-            ->with('lines.productVariant.product', 'lines.productVariant.prices')
-            ->first();
-    
-        if (! $cart) {
-            return ['message' => 'Cart not found'];
-        }
-    
-        return [
-            'cart_id' => $cart->id,
-            'items' => $cart->lines->map(function ($line) {
-                $variant = $line->productVariant; // Use correct model name
-                $product = $variant->product ?? null; // Ensure product relation exists
-    
+{
+    $cart = Cart::where('user_id', $userId)
+        ->with('lines.purchasable.prices') // Load purchasable and its prices
+        ->first();
+
+    if (!$cart) {
+        return ['message' => 'Cart not found'];
+    }
+
+    return [
+        'cart_id' => $cart->id,
+        'items' => $cart->lines->map(function ($line) {
+            $variant = $line->purchasable; // Use 'purchasable' for polymorphic relation
+            
+            if (!$variant) {
                 return [
                     'id' => $line->id,
                     'quantity' => $line->quantity,
-                    'total' => $line->price ?? (($variant->prices->first()->price->value ?? 0) * $line->quantity),
-                    'purchasable' => [
-                        'id' => $variant->id,
-                        'sku' => $variant->sku,
-                        'price' => $variant->prices->first()->price ?? null, // Get first price if available
-                        'stock' => $variant->stock,
-                        'product_name' => $product ? $product->translateAttribute('name') : 'Unknown Product',
-                        'image' => $variant->getThumbnail() ? $variant->getThumbnail()->getUrl() : null,
-                    ],
+                    'total' => 0,
+                    'purchasable' => null, // Handle missing variant gracefully
                 ];
-            }),
-        ];
-    }
+            }
+
+            return [
+                'id' => $line->id,
+                'quantity' => $line->quantity,
+                'total' => $line->price ?? (($variant->prices->first()->price->value ?? 0) * $line->quantity),
+                'purchasable' => [
+                'id' => $variant->id,
+                'sku' => $variant->sku,
+                'price' => optional($variant->prices->first())->price ?? null,
+                'stock' => $variant->stock,
+                'product_name' => optional($variant->product)->translateAttribute('name') ?? 'Unknown Product',
+                'image' => optional($variant->getThumbnail())->getUrl(),
+            ],
+            ];
+        }),
+    ];
+}
+
     
 
     public function addItemToCart($userId, $productId, $quantity)
@@ -114,7 +124,25 @@ class CartService
     {
         $cartLine = CartLine::whereHas('cart', fn ($query) => $query->where('user_id', $userId))
             ->findOrFail($cartLineId);
-
-        return $cartLine->delete();
-    }
+    
+        // Get the product ID from the cart line
+        $productId = $cartLine->product_id;
+    
+        // Try to find the product
+        $product = Product::find($productId);
+    
+        if (!$product) {
+            // If the product doesn't exist, return an error
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+    
+        // Get the stock quantity of the product
+        $stockQuantity = $product->stock;
+    
+        // Delete the cart line
+        $cartLine->delete();
+    
+        // Return the stock quantity
+        return response()->json(['stock' => $stockQuantity], 200);
+    }    
 }

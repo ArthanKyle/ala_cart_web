@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Modifiers\ShippingModifier;
 use App\Services\ProfilePictureService;
 use App\Services\ProfilePictureServiceInterface;
+use App\Services\ReviewService;
+use App\Services\ReviewServiceInterface;
 use Illuminate\Support\ServiceProvider;
 use Lunar\Admin\Support\Facades\LunarPanel;
 use Lunar\Base\ShippingModifiers;
@@ -25,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
             ->register();
 
         $this->app->bind(ProfilePictureServiceInterface::class, ProfilePictureService::class);
+        $this->app->bind(ReviewServiceInterface::class, ReviewService::class);
     }
 
     /**
