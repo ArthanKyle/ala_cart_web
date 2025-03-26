@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Review;
 use Lunar\Models\Product as LunarProduct;
 
 class Product extends LunarProduct

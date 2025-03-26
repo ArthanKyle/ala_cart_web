@@ -14,13 +14,10 @@ class ProductService
                 foreach ($product->images as $image) {
                     $image->url = url($image->path);
                 }
-    
+
                 $product->price = $product->prices->first()?->price->value ?? null;
                 $product->stock = $product->prices->first()?->priceable?->stock ?? 0;
-
                 $product->average_rating = round($product->reviews->avg('rating') ?? 0, 1);
-    
-                // Attach variants with option values
                 $product->variants = $product->variants->map(function ($variant) {
                     return [
                         'id' => $variant->id,
@@ -30,15 +27,16 @@ class ProductService
                         'options' => $variant->values->map(function ($option) {
                             return [
                                 'id' => $option->id,
-                                'name' => json_decode($option->name)->{'en'} ?? $option->name, // Decoding JSON name if necessary
+                                'name' => json_decode($option->name)->{'en'} ?? $option->name,
                             ];
                         }),
                     ];
                 });
-    
+
                 return $product;
             });
-    }    
+    }
+
     public function createProduct(array $data)
     {
         return Product::create($data);
@@ -46,7 +44,16 @@ class ProductService
 
     public function getProductById($id)
     {
-        return Product::with('reviews')->find($id)?->append('average_rating');
+        $product = Product::with('reviews')->find($id);
+
+        if (! $product) {
+            return null;
+        }
+
+        $product->total_reviews = $product->reviews->count();
+        $product->average_rating = round($product->reviews->avg('rating') ?? 0, 1);
+
+        return $product;
     }
 
     public function updateProduct($id, array $data)

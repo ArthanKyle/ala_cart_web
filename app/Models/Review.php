@@ -24,10 +24,10 @@ class Review extends Model implements HasMedia
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
-  
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('reviews')
-            ->useDisk('public'); 
+            ->useDisk('public');
     }
 }

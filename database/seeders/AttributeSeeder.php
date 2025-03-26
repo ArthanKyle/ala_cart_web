@@ -22,8 +22,8 @@ class AttributeSeeder extends AbstractSeeder
                 $existingAttribute = Attribute::where('attribute_type', $attribute->attribute_type)
                     ->where('handle', $attribute->handle)
                     ->first();
-        
-                if (!$existingAttribute) {
+
+                if (! $existingAttribute) {
                     Attribute::create([
                         'attribute_group_id' => $attributeGroup->id,
                         'attribute_type' => $attribute->attribute_type,

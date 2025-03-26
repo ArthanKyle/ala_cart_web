@@ -18,18 +18,23 @@ class ReviewController extends Controller
 
     public function index(): JsonResponse
     {
-        return response()->json($this->reviewService->getAllReviews());
+        return response()->json([
+            'reviews' => $this->reviewService->getAllReviews(),
+        ]);
+
     }
 
     public function show(int $id): JsonResponse
     {
         $review = $this->reviewService->getReviewById($id);
+
         return $review ? response()->json($review) : response()->json(['message' => 'Review not found'], 404);
     }
 
     public function store(ReviewRequest $request): JsonResponse
     {
         $review = $this->reviewService->createReview($request);
+
         return response()->json(['message' => 'Review created successfully', 'data' => $review], 201);
     }
 

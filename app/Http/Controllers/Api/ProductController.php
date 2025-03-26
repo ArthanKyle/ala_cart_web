@@ -39,11 +39,16 @@ class ProductController extends Controller
     public function show(string $id)
     {
         $product = $this->productService->getProductById($id);
+
         if (! $product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
 
-        return response()->json($product);
+        return response()->json([
+            'product' => $product,
+            'total_reviews' => $product->total_reviews,
+            'average_rating' => $product->average_rating,
+        ]);
     }
 
     /**

@@ -12,10 +12,9 @@ use Lunar\Models\Customer;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-
 class User extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, LunarUser, Notifiable, InteractsWithMedia;
+    use HasApiTokens, HasFactory, InteractsWithMedia, LunarUser, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -45,7 +44,6 @@ class User extends Authenticatable implements HasMedia
         'password' => 'hashed',
     ];
 
-    // Full name accessor
     public function getFullNameAttribute()
     {
         return trim($this->first_name.' '.($this->middle_name ?? '').' '.$this->last_name);
@@ -60,6 +58,6 @@ class User extends Authenticatable implements HasMedia
     {
         $media = $this->getFirstMedia('profile_pictures');
 
-        return $media ? $media->getUrl() : asset('storage/profile_pictures/default_profile.jpg');
+        return $media ? $media->getUrl() : asset('public\storage\profile_pictures\default_profile.jpg');
     }
 }

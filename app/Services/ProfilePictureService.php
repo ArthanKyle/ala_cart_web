@@ -18,4 +18,3 @@ class ProfilePictureService implements ProfilePictureServiceInterface
         return $user->getFirstMediaUrl('profile_pictures');
     }
 }
-

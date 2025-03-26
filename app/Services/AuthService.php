@@ -12,7 +12,7 @@ class AuthService
     public function registerUser(array $data)
     {
         return DB::transaction(function () use ($data) {
-            // Create User
+
             $user = User::create([
                 'first_name' => $data['first_name'],
                 'middle_name' => $data['middle_name'] ?? null,
@@ -24,15 +24,11 @@ class AuthService
                 'profile_picture' => $data['profile_picture'] ?? null,
             ]);
 
-            // Create Customer with user_id properly set
-            $customer = Customer::create([
-                'user_id' => $user->id, // 🔥 Ensure this is assigned
+            Customer::create([
+                'user_id' => $user->id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
             ]);
-
-            // Attach User to Customer (Many-to-Many)
-            $customer->users()->attach($user->id);
 
             return $user;
         });
@@ -42,7 +38,7 @@ class AuthService
     {
         $user = User::where('email', $email)->first();
         if (! $user || ! Hash::check($password, $user->password)) {
-            return null; // Invalid credentials
+            return null;
         }
 
         return $user;
