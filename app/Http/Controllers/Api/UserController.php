@@ -67,7 +67,7 @@ class UserController extends Controller
 
             return response()->json([
                 'message' => 'Profile updated successfully',
-                'user' => $user,
+                'user' => $user->fresh(),
                 'customer' => $user->customer, // Return updated customer data
             ], 200);
 
