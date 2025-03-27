@@ -24,6 +24,7 @@ class User extends Authenticatable implements HasMedia
     protected $appends = ['full_name', 'profile_picture_url'];
 
     protected $fillable = [
+        'name', //Shop Messages
         'first_name',
         'middle_name',
         'last_name',
@@ -44,6 +45,13 @@ class User extends Authenticatable implements HasMedia
         'password' => 'hashed',
     ];
 
+    // Shop Messages
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    // Full name accessor
     public function getFullNameAttribute()
     {
         return trim($this->first_name.' '.($this->middle_name ?? '').' '.$this->last_name);
